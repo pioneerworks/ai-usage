@@ -4,10 +4,28 @@ A Bash and Python 3.8+ tool for personal provider charges and whole-team Vercel 
 
 ## Run with curl
 
+View your personal usage:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/pioneerworks/ai-usage/main/usage.sh | bash -s -- 30d
+```
+
+View your personal usage with costs by model:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/pioneerworks/ai-usage/main/usage.sh | bash -s -- detail 30d
+```
+
+View usage for all users:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/pioneerworks/ai-usage/main/usage.sh | bash -s -- users 30d
+```
+
+View the top 10 users by spend:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pioneerworks/ai-usage/main/usage.sh | bash -s -- users 30d --top 10
 ```
 
 ## Download and run locally

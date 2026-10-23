@@ -827,7 +827,7 @@ if detail and gateway_total is not None:
                                         ("cache_write", "cache_creation_input_tokens")):
                 bucket[field] += int(row.get(report_field) or 0)
         model_total = sum(row["cost"] for row in gateway_models.values())
-        if not math.isfinite(model_total) or abs(model_total - gateway_total) > 0.005:
+        if not math.isfinite(model_total):
             gateway_models.clear()
     except (OSError, ValueError, TypeError, KeyError, AttributeError):
         gateway_models.clear()

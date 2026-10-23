@@ -1228,6 +1228,28 @@ class UsageTest(unittest.TestCase):
         self.assertIn("Vercel model breakdown unavailable; daily billing retained.",
                       " ".join(output.split()))
 
+    def test_detail_keeps_gateway_models_when_daily_billing_differs(self):
+        self.gateway_key()
+        self.fixture["model_rows"] = [
+            {"model": "deepseek/deepseek-v4-pro", "total_cost": 0.11226016,
+             "request_count": 6, "input_tokens": 61957, "output_tokens": 396,
+             "cached_input_tokens": 147200, "cache_creation_input_tokens": 0},
+            {"model": "deepseek/deepseek-v4.1-flash", "total_cost": 0.0125045,
+             "request_count": 1, "input_tokens": 40115, "output_tokens": 9,
+             "cached_input_tokens": 0, "cache_creation_input_tokens": 0}]
+        for cost, requests, billed in ((0.11226016, 6, "0.11"),
+                                       (0.13726916, 8, "0.14"), (0, 0, "0.00")):
+            with self.subTest(daily_cost=cost):
+                self.fixture["daily_rows"] = [
+                    {"day": DAY, "total_cost": cost, "request_count": requests}]
+                output = self.run_report("detail", "2d").stdout
+                self.assertRegex(output, rf"(?m)^BILLED TOTAL: \${re.escape(billed)} \(Vercel only\)\s*$")
+                self.assertIn("BY MODEL", output)
+                models = output.split("BY MODEL", 1)[1]
+                self.assertRegex(models, r"(?m)^VERCEL deepseek-v4-pro\s+6\s+.*\$0\.11\s*$")
+                self.assertRegex(models, r"(?m)^VERCEL deepseek-v4\.1-flash\s+1\s+.*\$0\.01\s*$")
+                self.assertNotIn("model breakdown unavailable", output)
+
     def test_detail_catalog_failure_keeps_gateway_billing_available(self):
         self.claude_history()
         self.gateway_key()
